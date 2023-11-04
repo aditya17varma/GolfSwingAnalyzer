@@ -131,7 +131,7 @@ def findMinDistance(inputVideo, perspective):
     The player with the minimum distance is the closest match.
     :param inputVideo: path to the input video
     :param perspective: "Front" or "Side"
-    :return: player name, distance
+    :return: player name, minimum distance, distance dictionary
     """
 
     inputList = []
@@ -179,14 +179,13 @@ def findMinDistance(inputVideo, perspective):
                 tempDist = np.sqrt((float(ix) - float(cx))**2 + (float(iy) - float(cy))**2 + (float(iz) - float(cz))**2)
                 dist += tempDist
 
-        print(f'Name: {key} Dist: {dist}')
         distanceDict[key] = dist
 
         if dist < minDist:
             minDist = dist
             minName = key
 
-    return minName, minDist
+    return minName, minDist, distanceDict
 
 def addProEvents(input, perspective):
     """
@@ -297,7 +296,7 @@ def processInput(input_path):
             csv_writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             for key, val in dataDict.items():
                 flatList = list(itertools.chain.from_iterable(val))
-                print(f'key: {key} flat: {flatList}')
+                # print(f'key: {key} flat: {flatList}')
                 flatList.insert(0, key)
                 csv_writer.writerow(flatList)
 
@@ -344,7 +343,7 @@ def createLandmarkImage(filename, outputFolder):
                 cv2.imshow('Mediapipe Feed', image)
 
                 outputPath = os.path.join(outputFolder, filename.split('/')[-1])
-                print(f'Writing to {outputPath}')
+                # print(f'Writing to {outputPath}')
                 cv2.imwrite(outputPath, image)
 
                 cap.release()
@@ -362,14 +361,26 @@ def createLandmarkImage(filename, outputFolder):
         cap.release()
         cv2.destroyAllWindows()
 
-def createComparisonEvents(playerFile):
+def createComparisonEvents(playerFile, perspective):
     """
     Create events for the given player.
     :param playerFile: path to the player file
     :return:
     """
-    for filename in os.listdir(playerFile):
-        f = os.path.join(playerFile, filename)
+    if perspective == 'Front':
+        playerEventFolder = '../proEvents/front/' + playerFile
+    else:
+        playerEventFolder = '../proEvents/side/' + playerFile
+
+
+    print()
+    print('-------------------')
+
+    print(f'Creating events for {playerFile}')
+    print(f'Player event folder: {playerEventFolder}')
+
+    for filename in os.listdir(playerEventFolder):
+        f = os.path.join(playerEventFolder, filename)
         # checking if it is a file
         if os.path.isfile(f):
             createLandmarkImage(f, '../output/compPlayer')
@@ -486,6 +497,56 @@ def displayComparisons():
     # Close all OpenCV windows
     cv2.destroyAllWindows()
 
+def main(videoInput, perspective='Front'):
+    """
+    Main function for the analyzer.
+    :param videoInput: path to user input video
+    :return:
+    """
+    clearFolders('../input/inputEvents')
+    clearFolders('../output/compPlayer')
+    clearFolders('../output/compInput')
+
+    minName, minDist, distDict = findMinDistance(videoInput, perspective)
+    minNameSplit = minName.split('_')
+    playerName = minNameSplit[0]
+    club = minNameSplit[1]
+
+    print()
+    print('-------------------')
+    print('Distances: ')
+    for key, dist in distDict.items():
+        name = key.split('_')[0]
+        print(f'{name:30} | {dist:30}')
+
+    print()
+    print(f'Closest Match to: {playerName} with {club} minDist: {minDist}')
+
+    createComparisonEvents(minName, 'Side')
+
+    displayComparisons()
+
+def clearFolders(folder_path):
+    """
+    Clear all files from the inputEvents, output/compPlayer, and output/compInput folders.
+    :param folder_path:
+    :return:
+    """
+    # List all files in the folder
+    files = os.listdir(folder_path)
+    print(f'Clearing folder: {folder_path}')
+
+    # Iterate through the files and delete them
+    for file in files:
+        file_path = os.path.join(folder_path, file)
+
+        # Check if the path is a file (not a subdirectory)
+        if os.path.isfile(file_path):
+            try:
+                os.remove(file_path)
+                # print(f"Deleted: {file_path}")
+            except Exception as e:
+                print(f"Failed to delete {file_path}: {e}")
 
 if __name__ == "__main__":
 
@@ -499,19 +560,24 @@ if __name__ == "__main__":
     #
     # writeData()
 
-    # viewLandmarks('../videos/ColinMorikawa/Colin-Morikawa_LongIrons_Side1.mp4')
+    # viewLandmarks('../input/Shriya_Side1.mov')
 
     # processInput('../input/test_video.mp4')
 
     # minName, minDist = findMinDistance('../input/test_video.mp4', 'Side')
     # print()
     # print(f'MinName: {minName} MinDist: {minDist}')
+    #
+    # # createLandmarkImage('../proEvents/front/Adam-Scott_LongIrons_Front1/Adam-Scott_LongIrons_Front1.mp4_Address.jpg', '../output/compPlayer')
+    #
+    # createComparisonEvents(minName, 'Side')
+    #
+    # displayComparisons()
 
-    # createLandmarkImage('../proEvents/front/Adam-Scott_LongIrons_Front1/Adam-Scott_LongIrons_Front1.mp4_Address.jpg', '../output/compPlayer')
 
-    # createComparisonEvents('../proEvents/side/Adam-Scott_LongIrons_Side1')
+    main('../input/Shriya_Side1.mov', 'Side')
+    # clearFolders('../input/inputEvents')
 
-    displayComparisons()
 
 
 
