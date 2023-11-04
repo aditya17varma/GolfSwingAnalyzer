@@ -178,19 +178,31 @@ def findMinDistance(inputFile, orientation):
 
     return minName, minDist
 
-if __name__ == "__main__":
-
-
-    outSide = '../proEvents/side'
-    outFront = '../proEvents/front'
-
-    input = '../videos/TommyFleetwood/Tommy-Fleetwood_LongIrons_Front1.mp4'
+def addProEvents(input, perspective):
+    """
+    Add pro events to the database. Calls GolfDB.detectPoses.detectEvents and adds events to the proEvents/perspective folder.
+    Make sure to create a new folder following the convention "FirstName-LastName_Club_Perspective#" and add the generated events to it.
+    :param input: path to the input video
+    :param perspective: "Front" or "Side"
+    :return:
+    """
+    if perspective == 'Front':
+        outDir = '../proEvents/front'
+    else:
+        outDir = '../proEvents/side'
 
     if os.path.isfile(input):
         print('File exists')
-        detectEvents(input, outFront)
+        detectEvents(input, outDir)
     else:
         print('File does not exist')
+
+if __name__ == "__main__":
+
+    input = '../videos/HidekiMatsuyama/Hideki-Matsuyama_LongIrons_Side1.mp4'
+
+    addProEvents(input, 'Side')
+
 
     # test1 = '../proEvents/front/Adam-Scott_LongIrons_Front1/Adam-Scott_LongIrons_Front1.mp4_Address.jpg'
     # testDir = '../proEvents/front/Adam-Scott_LongIrons_Front1'
