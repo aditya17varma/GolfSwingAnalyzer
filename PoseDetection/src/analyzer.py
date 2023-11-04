@@ -166,6 +166,8 @@ def findMinDistance(inputVideo, perspective):
     minDist = float('inf')
     minName = ''
 
+    distanceDict = {}
+
     for key, val in compDict.items():
         dist = 0
         for i in range(len(val)):
@@ -173,11 +175,12 @@ def findMinDistance(inputVideo, perspective):
             cx, cy, cz, cv = val[i]
 
             # Make sure the landmark is visible
-            if cv > 0:
+            if float(cv) and float(iv) > 0:
                 tempDist = np.sqrt((float(ix) - float(cx))**2 + (float(iy) - float(cy))**2 + (float(iz) - float(cz))**2)
                 dist += tempDist
 
         print(f'Name: {key} Dist: {dist}')
+        distanceDict[key] = dist
 
         if dist < minDist:
             minDist = dist
@@ -314,14 +317,15 @@ if __name__ == "__main__":
     # test1 = '../proEvents/front/Adam-Scott_LongIrons_Front1/Adam-Scott_LongIrons_Front1.mp4_Address.jpg'
     # testDir = '../proEvents/front/Adam-Scott_LongIrons_Front1'
     #
-    writeData()
+    # writeData()
 
     # viewLandmarks('../videos/ColinMorikawa/Colin-Morikawa_LongIrons_Side1.mp4')
 
     # processInput('../input/test_video.mp4')
 
-    # minName, minDist = findMinDistance('../output/sample.csv', 'Side')
-    # print(f'MinName: {minName} MinDist: {minDist}')
+    minName, minDist = findMinDistance('../input/test_video.mp4', 'Side')
+    print()
+    print(f'MinName: {minName} MinDist: {minDist}')
 
 
 
