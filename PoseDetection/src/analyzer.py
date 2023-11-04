@@ -209,7 +209,7 @@ def addProEvents(input, perspective):
 
 def viewLandmarks(input_path):
     """
-    View the mediapipe landmarks for a given video
+    View the mediapipe landmarks for a given video file.
     :param input_path: video path
     :return:
     """
@@ -306,6 +306,186 @@ def processInput(input_path):
     else:
         print('File does not exist')
 
+def createLandmarkImage(filename, outputFolder):
+    mp_drawing = mp.solutions.drawing_utils
+    mp_pose = mp.solutions.pose
+
+    cap = cv2.VideoCapture(filename)
+
+    with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
+        while cap.isOpened():
+            ret, frame = cap.read()
+
+            # Recolor image to RGB
+            image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            image.flags.writeable = False
+
+            # Make detection
+            results = pose.process(image)
+
+            # Recolor back to BGR
+            image.flags.writeable = True
+            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+            # Extract landmarks
+            try:
+                landmarks = results.pose_landmarks.landmark
+                # Get coordinates
+                landmark_points = []
+
+                for index, landmark in enumerate(landmarks):
+                    landmark_points.append([landmark.x, landmark.y, landmark.z, landmark.visibility])
+
+                mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
+                                          mp_drawing.DrawingSpec(color=(245, 117, 66), thickness=2, circle_radius=2),
+                                          mp_drawing.DrawingSpec(color=(245, 66, 230), thickness=2, circle_radius=2)
+                                          )
+
+                cv2.imshow('Mediapipe Feed', image)
+
+                outputPath = os.path.join(outputFolder, filename.split('/')[-1])
+                print(f'Writing to {outputPath}')
+                cv2.imwrite(outputPath, image)
+
+                cap.release()
+                cv2.destroyAllWindows()
+
+                return
+
+            except Exception as e:
+                print(f'Except: {e}')
+                pass
+
+            if cv2.waitKey(10) & 0xFF == ord('q'):
+                break
+
+        cap.release()
+        cv2.destroyAllWindows()
+
+def createComparisonEvents(playerFile):
+    """
+    Create events for the given player.
+    :param playerFile: path to the player file
+    :return:
+    """
+    for filename in os.listdir(playerFile):
+        f = os.path.join(playerFile, filename)
+        # checking if it is a file
+        if os.path.isfile(f):
+            createLandmarkImage(f, '../output/compPlayer')
+
+    for filename in os.listdir('../input/inputEvents'):
+        f = os.path.join('../input/inputEvents', filename)
+        # checking if it is a file
+        if os.path.isfile(f):
+            createLandmarkImage(f, '../output/compInput')
+
+def orderImages(folder1_images, folder2_images):
+    """
+    Order the images in the two folders in order of golf swing.
+    :param folder1_images: folder 1 images
+    :param folder2_images: folder 2 images
+    :return:
+    """
+
+    folder1_ordered = [None] * len(folder1_images)
+    folder2_ordered = [None] * len(folder2_images)
+
+    # 0: 'Address',
+    # 1: 'Toe-up',
+    # 2: 'Mid-backswing (arm parallel)',
+    # 3: 'Top',
+    # 4: 'Mid-downswing (arm parallel)',
+    # 5: 'Impact',
+    # 6: 'Mid-follow-through (shaft parallel)',
+    # 7: 'Finish'
+    for f1 in folder1_images:
+        if f1.endswith('Address.jpg'):
+            folder1_ordered[0] = f1
+        elif f1.endswith('Toe-up.jpg'):
+            folder1_ordered[1] = f1
+        elif f1.endswith('Mid-backswing (arm parallel).jpg'):
+            folder1_ordered[2] = f1
+        elif f1.endswith('Top.jpg'):
+            folder1_ordered[3] = f1
+        elif f1.endswith('Mid-downswing (arm parallel).jpg'):
+            folder1_ordered[4] = f1
+        elif f1.endswith('Impact.jpg'):
+            folder1_ordered[5] = f1
+        elif f1.endswith('Mid-follow-through (shaft parallel).jpg'):
+            folder1_ordered[6] = f1
+        elif f1.endswith('Finish.jpg'):
+            folder1_ordered[7] = f1
+        else:
+            print('Error')
+            break
+
+    for f2 in folder2_images:
+        if f2.endswith('Address.jpg'):
+            folder2_ordered[0] = f2
+        elif f2.endswith('Toe-up.jpg'):
+            folder2_ordered[1] = f2
+        elif f2.endswith('Mid-backswing (arm parallel).jpg'):
+            folder2_ordered[2] = f2
+        elif f2.endswith('Top.jpg'):
+            folder2_ordered[3] = f2
+        elif f2.endswith('Mid-downswing (arm parallel).jpg'):
+            folder2_ordered[4] = f2
+        elif f2.endswith('Impact.jpg'):
+            folder2_ordered[5] = f2
+        elif f2.endswith('Mid-follow-through (shaft parallel).jpg'):
+            folder2_ordered[6] = f2
+        elif f2.endswith('Finish.jpg'):
+            folder2_ordered[7] = f2
+        else:
+            print('Error')
+            break
+
+    return folder1_ordered, folder2_ordered
+
+def displayComparisons():
+    # Path to the two image folders
+    folder1_path = '../output/compPlayer'
+    folder2_path = '../output/compInput'
+
+    # List all the image files in each folder
+    folder1_images = [f for f in os.listdir(folder1_path) if f.endswith(('.jpg', '.png'))]
+    folder2_images = [f for f in os.listdir(folder2_path) if f.endswith(('.jpg', '.png'))]
+
+    # Sort the image files to ensure they are in the same order
+    folder1_images, folder2_images = orderImages(folder1_images, folder2_images)
+
+
+    # Iterate through the image files and display them side by side
+    for img1_name, img2_name in zip(folder1_images, folder2_images):
+        # Load the images
+        image1 = cv2.imread(os.path.join(folder1_path, img1_name))
+        image2 = cv2.imread(os.path.join(folder2_path, img2_name))
+
+        # Check if the images have the same dimensions
+        if image1.shape[:2] == image2.shape[:2]:
+            # Images have the same dimensions, concatenate them side by side
+            concatenated_image = cv2.hconcat([image1, image2])
+
+            # Display the concatenated image
+            cv2.imshow('Concatenated Images', concatenated_image)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+        else:
+            # Resize one of the images to match the dimensions of the other
+            image2_resized = cv2.resize(image2, (image1.shape[1], image1.shape[0]))
+
+            # Concatenate the resized image with the first image
+            concatenated_image = cv2.hconcat([image1, image2_resized])
+
+            # Display the concatenated image
+            cv2.imshow('Concatenated Images', concatenated_image)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
+    # Close all OpenCV windows
+    cv2.destroyAllWindows()
+
 
 if __name__ == "__main__":
 
@@ -323,9 +503,15 @@ if __name__ == "__main__":
 
     # processInput('../input/test_video.mp4')
 
-    minName, minDist = findMinDistance('../input/test_video.mp4', 'Side')
-    print()
-    print(f'MinName: {minName} MinDist: {minDist}')
+    # minName, minDist = findMinDistance('../input/test_video.mp4', 'Side')
+    # print()
+    # print(f'MinName: {minName} MinDist: {minDist}')
+
+    # createLandmarkImage('../proEvents/front/Adam-Scott_LongIrons_Front1/Adam-Scott_LongIrons_Front1.mp4_Address.jpg', '../output/compPlayer')
+
+    # createComparisonEvents('../proEvents/side/Adam-Scott_LongIrons_Side1')
+
+    displayComparisons()
 
 
 
