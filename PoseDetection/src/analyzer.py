@@ -468,6 +468,7 @@ def displayComparisons():
 
 
     # Iterate through the image files and display them side by side
+    counter = 0
     for img1_name, img2_name in zip(folder1_images, folder2_images):
         # Load the images
         image1 = cv2.imread(os.path.join(folder1_path, img1_name))
@@ -480,6 +481,8 @@ def displayComparisons():
 
             # Display the concatenated image
             cv2.imshow('Concatenated Images', concatenated_image)
+            cv2.imwrite('../output/concatImages/comp' + str(counter) + '.jpg', concatenated_image)
+            counter += 1
             cv2.waitKey(0)
             cv2.destroyAllWindows()
         else:
@@ -491,6 +494,8 @@ def displayComparisons():
 
             # Display the concatenated image
             cv2.imshow('Concatenated Images', concatenated_image)
+            cv2.imwrite('../output/concatImages/comp' + str(counter) + '.jpg', concatenated_image)
+            counter += 1
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
@@ -506,6 +511,7 @@ def main(videoInput, perspective='Front'):
     clearFolders('../input/inputEvents')
     clearFolders('../output/compPlayer')
     clearFolders('../output/compInput')
+    clearFolders('../output/concatImages')
 
     minName, minDist, distDict = findMinDistance(videoInput, perspective)
     minNameSplit = minName.split('_')
