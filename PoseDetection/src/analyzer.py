@@ -54,15 +54,6 @@ def analyzeEvents(input_path):
                 for index, landmark in enumerate(landmarks):
                     landmark_points.append([landmark.x, landmark.y, landmark.z, landmark.visibility])
 
-
-
-                # mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
-                #                           mp_drawing.DrawingSpec(color=(245, 117, 66), thickness=2, circle_radius=2),
-                #                           mp_drawing.DrawingSpec(color=(245, 66, 230), thickness=2, circle_radius=2)
-                #                           )
-
-                # cv2.imwrite('../output' + filename, image)
-
                 cv2.imshow('Mediapipe Feed', image)
 
                 return landmark_points
@@ -132,16 +123,26 @@ def writeData():
         isFront = False
     print('Done writing data')
 
-def findMinDistance(inputFile, orientation):
+def findMinDistance(inputVideo, perspective):
+    """
+    Find the minimum distance between the landmarks in the inputFile and the landmarks for the pro golfers.
+    For each event, the euclidean distance between analogous landmarks is calculated.
+    The sum of the distances over all events against a player is the distance between the input and the player.
+    The player with the minimum distance is the closest match.
+    :param inputVideo: path to the input video
+    :param perspective: "Front" or "Side"
+    :return: player name, distance
+    """
 
     inputList = []
-
     compList = []
 
-    with open(inputFile, mode='r') as f:
+    processInput(inputVideo)
+
+    with open('../input/inputData.csv', mode='r') as f:
         inputList = list(csv.reader(f, delimiter=','))
 
-    if orientation == 'Front':
+    if perspective == 'Front':
         with open('../output/frontData.csv', mode='r') as f:
             compList = list(csv.reader(f, delimiter=','))
     else:
@@ -171,8 +172,10 @@ def findMinDistance(inputFile, orientation):
             ix, iy, iz, iv = inputChunks[i]
             cx, cy, cz, cv = val[i]
 
-            tempDist = np.sqrt((float(ix) - float(cx))**2 + (float(iy) - float(cy))**2 + (float(iz) - float(cz))**2)
-            dist += tempDist
+            # Make sure the landmark is visible
+            if cv > 0:
+                tempDist = np.sqrt((float(ix) - float(cx))**2 + (float(iy) - float(cy))**2 + (float(iz) - float(cz))**2)
+                dist += tempDist
 
         print(f'Name: {key} Dist: {dist}')
 
@@ -202,9 +205,11 @@ def addProEvents(input, perspective):
         print('File does not exist')
 
 def viewLandmarks(input_path):
-
-    # if os.path.isfile(input_path):
-    #     print('File exists')
+    """
+    View the mediapipe landmarks for a given video
+    :param input_path: video path
+    :return:
+    """
 
     mp_drawing = mp.solutions.drawing_utils
     mp_pose = mp.solutions.pose
@@ -244,8 +249,6 @@ def viewLandmarks(input_path):
 
                 cv2.imshow('Mediapipe Feed', image)
 
-                return landmark_points
-
             except Exception as e:
                 print(f'Except: {e}')
                 pass
@@ -255,6 +258,50 @@ def viewLandmarks(input_path):
 
         cap.release()
         cv2.destroyAllWindows()
+
+def processInput(input_path):
+    """
+    Process the input video and generate a csv file with the landmarks.
+    Generates events and places them in input/inputEvents.
+    Generates landmarks and places the data in a csv file in input/inputData.csv
+    :param input_path: path to the input video
+    :return:
+    """
+    if os.path.isfile(input_path):
+        print('File exists')
+        print('Detecting events...')
+        detectEvents(input_path, '../input/inputEvents')
+        print('Done detecting events')
+        print('Generating csv...')
+
+        dataDict = {}
+
+        for filename in os.listdir('../input/inputEvents'):
+            f = os.path.join('../input/inputEvents', filename)
+            # checking if it is a file
+            if os.path.isfile(f):
+                event = filename.split('.mp4_')[-1].split('.jpg')[0]
+                filen = filename.split('.mp4_')[0]
+
+                points = analyzeEvents(f)
+
+                if filen not in dataDict:
+                    dataDict[filen] = []
+
+                dataDict[filen] = points
+
+        with open('../input/inputData.csv', mode='w+', newline='') as f:
+            csv_writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            for key, val in dataDict.items():
+                flatList = list(itertools.chain.from_iterable(val))
+                print(f'key: {key} flat: {flatList}')
+                flatList.insert(0, key)
+                csv_writer.writerow(flatList)
+
+        print('Done generating csv')
+
+    else:
+        print('File does not exist')
 
 
 if __name__ == "__main__":
@@ -269,7 +316,9 @@ if __name__ == "__main__":
     #
     writeData()
 
-    # viewLandmarks('../JustinRose/Justin-Rose_LongIrons_Front1.mp4')
+    # viewLandmarks('../videos/ColinMorikawa/Colin-Morikawa_LongIrons_Side1.mp4')
+
+    # processInput('../input/test_video.mp4')
 
     # minName, minDist = findMinDistance('../output/sample.csv', 'Side')
     # print(f'MinName: {minName} MinDist: {minDist}')
