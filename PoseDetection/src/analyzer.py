@@ -184,21 +184,21 @@ if __name__ == "__main__":
     outSide = '../proEvents/side'
     outFront = '../proEvents/front'
 
-    # input = '../videos/test_video.mp4'
-    #
-    # if os.path.isfile(input):
-    #     print('File exists')
-    #     detectEvents(input, '../sampleVid')
-    # else:
-    #     print('File does not exist')
+    input = '../videos/TommyFleetwood/Tommy-Fleetwood_LongIrons_Front1.mp4'
+
+    if os.path.isfile(input):
+        print('File exists')
+        detectEvents(input, outFront)
+    else:
+        print('File does not exist')
 
     # test1 = '../proEvents/front/Adam-Scott_LongIrons_Front1/Adam-Scott_LongIrons_Front1.mp4_Address.jpg'
     # testDir = '../proEvents/front/Adam-Scott_LongIrons_Front1'
     #
     # writeData()
 
-    minName, minDist = findMinDistance('../output/sample.csv', 'Front')
-    print(f'MinName: {minName} MinDist: {minDist}')
+    # minName, minDist = findMinDistance('../output/sample.csv', 'Side')
+    # print(f'MinName: {minName} MinDist: {minDist}')
 
 
 
