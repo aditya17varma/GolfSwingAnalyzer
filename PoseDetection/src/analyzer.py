@@ -6,10 +6,10 @@ import itertools
 import csv
 import sys
 import numpy as np
+import argparse
+
 
 from submodule.GolfDB.detectPoses import detectEvents
-
-import pandas as pd
 
 event_names = {
         0: 'Address',
@@ -547,6 +547,22 @@ def clearFolders(folder_path):
                 print(f"Failed to delete {file_path}: {e}")
 
 if __name__ == "__main__":
+    # Create an ArgumentParser object
+    parser = argparse.ArgumentParser(description="A script with command-line arguments")
+
+    # Define command-line arguments
+    parser.add_argument("-i", "--inputVideo", help="path to the video file")
+    parser.add_argument("-p", "--perspective", help="video perspective, 'Front' or 'Side'")
+
+    # Parse the command-line arguments
+    args = parser.parse_args()
+
+    # Access the parsed arguments
+    inputPath = args.inputVideo
+    perspective = args.perspective
+
+    # print(f"inputPath: {inputPath}")
+    # print(f"perspective: {perspective}")
 
     # for directory in sys.path:
     #     print(directory)
@@ -576,9 +592,10 @@ if __name__ == "__main__":
     #
     # displayComparisons()
 
-
-    main('../input/Shriya_Side1.mov', 'Side')
+    # main('../input/Shriya_Side1.mov', 'Side')
     # clearFolders('../input/inputEvents')
+
+    main(inputPath, perspective)
 
 
 
