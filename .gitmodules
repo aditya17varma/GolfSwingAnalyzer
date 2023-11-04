@@ -1,0 +1,3 @@
+[submodule "submodule/GolfDB"]
+	path = submodule/GolfDB
+	url = https://github.com/aditya17varma/golfdb
