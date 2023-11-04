@@ -8,8 +8,10 @@ import sys
 import numpy as np
 import argparse
 
+from GolfDB.detectPoses import detectEvents
 
-from submodule.GolfDB.detectPoses import detectEvents
+# Create soft link to GolfDB if import not working
+# ln -s ../../submodule/GolfDB GolfDB
 
 event_names = {
         0: 'Address',
