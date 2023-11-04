@@ -7,9 +7,7 @@ import csv
 import sys
 import numpy as np
 
-sys.path.insert(1, '../../GolfDB')
-
-from GolfDB.detectPoses import detectEvents
+from submodule.GolfDB.detectPoses import detectEvents
 
 import pandas as pd
 
@@ -550,7 +548,11 @@ def clearFolders(folder_path):
 
 if __name__ == "__main__":
 
+    # for directory in sys.path:
+    #     print(directory)
+
     # input = '../videos/HidekiMatsuyama/Hideki-Matsuyama_LongIrons_Side1.mp4'
+    # detectEvents(input, '../output')
 
     # addProEvents(input, 'Side')
 
