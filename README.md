@@ -36,9 +36,9 @@ Once the classification is made, the 8 key moments for the pro and the input vid
 
 ![Image example2](PoseDetection/exampleOutput/golfcv_eg2.png)
 
-###Demo:
+### Demo:
 
-![](PoseDetection/exampleOutput/golfcv_demo.mp4)
+[![Watch the video](PoseDetection/exampleOutput/golfcv_eg1.png)](PoseDetection/exampleOutput/golfcv_demo.mp4)
 
 
 ## To Run
