@@ -36,6 +36,10 @@ Once the classification is made, the 8 key moments for the pro and the input vid
 
 ![Image example2](PoseDetection/exampleOutput/golfcv_eg2.png)
 
+###Demo:
+
+![](PoseDetection/exampleOutput/golfcv_demo.mp4)
+
 
 ## To Run
 You need a video file of your golf swing. Either from the front or side persepctives. For best perfomance with GolfDB event detection, the video should start a couple of seconds before the backswing starts.
