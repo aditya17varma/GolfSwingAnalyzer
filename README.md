@@ -12,7 +12,7 @@ I scraped YouTube videos from the [Michael John Field](https://www.youtube.com/@
 
 I currently only support the long-irons (5-iron and above), as getting the video, appropriately flagging it, cropping the video for our purposes, and generating the pose details is time consuming. But this project shows that given enough time to collect, clean, and parse data, a good comparision app can be made!
 
-Once GolfDB parses the video and generates 8 images for each moment in the swing, I used Google's Mediapipe library to analyze the image and generate pose data. The pose data, for 32 key body markers, is stored in a csv file for easy access.
+Once [GolfDB](https://github.com/wmcnally/golfdb) parses the video and generates 8 images for each moment in the swing, I used Google's Mediapipe library to analyze the image and generate pose data. The pose data, for 32 key body markers, is stored in a csv file for easy access.
 
 The 8 golf swing moments:
 <ol>
@@ -38,7 +38,7 @@ Once the classification is made, the 8 key moments for the pro and the input vid
 
 
 ## To Run
-You need a video file of your golf swing. Either from the front or side persepctives. For best perfomance with [GolfDB](https://github.com/wmcnally/golfdb) event detection, the video should start a couple of seconds before the backswing starts.
+You need a video file of your golf swing. Either from the front or side persepctives. For best perfomance with GolfDB event detection, the video should start a couple of seconds before the backswing starts.
 
 Place the video file in the input folder.
 
