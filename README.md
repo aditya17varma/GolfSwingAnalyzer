@@ -28,6 +28,15 @@ The 8 golf swing moments:
 
 For the analysis and classification stage, we compare the pose data from input video's images with the pose data of the pros stored in the csv file. For each pro and for each moment, we calculate how "far away" the analogous input moment is. The closest distance is chosen as the classification.
 
+![Image example-distance](PoseDetection/exampleOutput/golfcv_distances_eg.png)
+
+Once the classification is made, the 8 key moments for the pro and the input video are displayed to the user:
+
+![Image example1](PoseDetection/exampleOutput/golfcv_eg1.png)
+
+![Image example2](PoseDetection/exampleOutput/golfcv_eg2.png)
+
+
 ## To Run
 You need a video file of your golf swing. Either from the front or side persepctives. For best perfomance with [GolfDB](https://github.com/wmcnally/golfdb) event detection, the video should start a couple of seconds before the backswing starts.
 
@@ -55,5 +64,7 @@ ln -s ../../submodule/GolfDB GolfDB
 
 ## TODO
 <ul>
-  <li>Resize input videos to standard </li>
+  <li>Resize input videos to a standard size, thus when comparing the pro landmarks and input landmarks, the ratio, distances, and angles should be more accurate</li>
+  <li>Improve the front-end presentation</li>
+  <li>Add more pro golfer swing data</li>
 </ul>
