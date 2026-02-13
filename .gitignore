@@ -1,1 +1,59 @@
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
 
+# Python environments
+.venv/
+venv/
+env/
+.python-version
+
+# Python cache / tooling
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# ML artifacts (large/generated)
+*.pt
+*.pth
+*.pth.tar
+*.onnx
+*.mlmodel
+*.mlpackage/
+*.tflite
+
+# Repo-specific generated outputs
+Scripts/output/
+PoseDetection/src/models/
+PoseDetection/src/mobilenet_v2.pth.tar
+submodule/GolfDB/models/
+submodule/GolfDB/mobilenet_v2.pth.tar
+submodule/GolfDB/data/videos_160/
+submodule/GolfDB/data/train_split_*.pkl
+submodule/GolfDB/data/val_split_*.pkl
+
+# Xcode / Swift
+DerivedData/
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+.build/
+*.swiftpm/
