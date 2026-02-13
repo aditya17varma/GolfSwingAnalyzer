@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 import os
 import CoreVideo
 
@@ -48,10 +49,7 @@ class AnalysisViewModel: ObservableObject {
             }
             logger.info("[2/4] Extracted \(eventFrames.count)/8 event frame images")
 
-            // Release pixel buffers now that we have CGImages
-            for frame in frames {
-                CVPixelBufferRelease(frame)
-            }
+            // Pixel buffers are released automatically by ARC
 
             // Step 3: Analyze poses
             stage = .analyzingPoses

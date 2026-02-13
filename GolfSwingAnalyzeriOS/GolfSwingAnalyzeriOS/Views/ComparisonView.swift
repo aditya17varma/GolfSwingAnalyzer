@@ -92,22 +92,39 @@ struct ComparisonView: View {
                     .clipShape(Capsule())
                 }
 
-                // Pro info
+                // Pro frame
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Pro: \(result.bestMatch.playerName)")
                         .font(.headline)
 
-                    Text("Pro event images will appear here once bundled in the app.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(.gray.opacity(0.1))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    if let proImage = loadProEventImage(proId: result.bestMatch.id, event: selectedEvent) {
+                        Image(uiImage: proImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    } else {
+                        noFramePlaceholder
+                    }
                 }
             }
             .padding()
         }
+    }
+
+    /// Load a pro golfer's event image from the app bundle.
+    /// Images are expected at: ProEventImages/{proId}/{proId}.mp4_{eventName}.jpg
+    private func loadProEventImage(proId: String, event: SwingEvent) -> UIImage? {
+        // Try the folder-based bundle path first
+        let filename = "\(proId).mp4_\(event.rawValue)"
+        if let url = Bundle.main.url(forResource: filename, withExtension: "jpg", subdirectory: "ProEventImages/\(proId)") {
+            return UIImage(contentsOfFile: url.path)
+        }
+        // Fallback: flat bundle (no subdirectory)
+        if let url = Bundle.main.url(forResource: filename, withExtension: "jpg") {
+            return UIImage(contentsOfFile: url.path)
+        }
+        logger.debug("Pro image not found: \(filename).jpg")
+        return nil
     }
 
     private var noFramePlaceholder: some View {

@@ -55,7 +55,6 @@ struct VideoProcessingService {
                   let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
                 continue
             }
-            CVPixelBufferRetain(pixelBuffer)
             frames.append(pixelBuffer)
         }
 

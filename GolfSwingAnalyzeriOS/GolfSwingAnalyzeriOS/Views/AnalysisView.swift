@@ -99,13 +99,10 @@ struct AnalysisView: View {
     }
 
     private func startAnalysis() {
-        guard case .idle = viewModel.stage else {
-            if case .failed = viewModel.stage {
-                viewModel.reset()
-            } else {
-                return
-            }
+        if case .failed = viewModel.stage {
+            viewModel.reset()
         }
+        guard case .idle = viewModel.stage else { return }
         logger.info("Launching analysis task")
         Task {
             await viewModel.analyze(videoURL: videoURL, perspective: perspective)
