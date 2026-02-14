@@ -27,10 +27,8 @@ struct EventDetectionService {
     private let seqLength = 64
 
     // ImageNet normalization (must match Python pipeline exactly)
-    // Note: Python code uses std [0.299, 0.224, 0.225] — the 0.299 appears to be a typo
-    // in the original code but we match it for consistency with the trained weights.
     private let imagenetMean: [Float] = [0.485, 0.456, 0.406]
-    private let imagenetStd: [Float] = [0.299, 0.224, 0.225]
+    private let imagenetStd: [Float] = [0.229, 0.224, 0.225]
     private let inputSize = 160
 
     /// Detect 8 swing events from video frames.

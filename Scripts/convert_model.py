@@ -24,13 +24,23 @@ import torch.nn.functional as F
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.join(SCRIPT_DIR, '..')
 sys.path.insert(0, os.path.join(PROJECT_ROOT, 'submodule'))       # for GolfDB.MobileNetV2
-sys.path.insert(0, os.path.join(PROJECT_ROOT, 'submodule', 'GolfDB'))  # for model, MobileNetV2
+sys.path.insert(0, os.path.join(PROJECT_ROOT, 'submodule', 'GolfDB', 'golfdb'))  # for model, MobileNetV2
 from model import EventDetector
 from MobileNetV2 import MobileNetV2
 
-WEIGHTS_PATH = os.path.join(PROJECT_ROOT, 'submodule', 'GolfDB', 'models', 'swingnet_1800.pth.tar')
-MOBILENET_WEIGHTS_PATH = os.path.join(PROJECT_ROOT, 'submodule', 'GolfDB', 'mobilenet_v2.pth.tar')
+DEFAULT_BEST_WEIGHTS_PATH = os.path.join(PROJECT_ROOT, 'submodule', 'GolfDB', 'golfdb', 'models', 'swingnet_best.pth.tar')
+DEFAULT_LEGACY_WEIGHTS_PATH = os.path.join(PROJECT_ROOT, 'submodule', 'GolfDB', 'golfdb', 'models', 'swingnet_1800.pth.tar')
+MOBILENET_WEIGHTS_PATH = os.path.join(PROJECT_ROOT, 'submodule', 'GolfDB', 'golfdb', 'mobilenet_v2.pth.tar')
 OUTPUT_DIR = os.path.join(PROJECT_ROOT, 'Scripts', 'output')
+
+
+def resolve_weights_path():
+    override = os.getenv('GOLFDB_CONVERT_CKPT')
+    if override:
+        return override
+    if os.path.exists(DEFAULT_BEST_WEIGHTS_PATH):
+        return DEFAULT_BEST_WEIGHTS_PATH
+    return DEFAULT_LEGACY_WEIGHTS_PATH
 
 
 class CNNFeatureExtractor(nn.Module):
@@ -67,7 +77,7 @@ def load_swingnet():
     # EventDetector.__init__ calls torch.load('mobilenet_v2.pth.tar') from CWD when pretrain=True.
     # We chdir to the GolfDB directory so it can find the weights file.
     original_dir = os.getcwd()
-    os.chdir(os.path.join(PROJECT_ROOT, 'submodule', 'GolfDB'))
+    os.chdir(os.path.join(PROJECT_ROOT, 'submodule', 'GolfDB', 'golfdb'))
 
     model = EventDetector(
         pretrain=True,
@@ -80,9 +90,17 @@ def load_swingnet():
 
     os.chdir(original_dir)
 
-    save_dict = torch.load(WEIGHTS_PATH, map_location='cpu')
+    weights_path = resolve_weights_path()
+    try:
+        save_dict = torch.load(weights_path, map_location='cpu', weights_only=False)
+    except TypeError:
+        # Backward compatibility for PyTorch versions without weights_only.
+        save_dict = torch.load(weights_path, map_location='cpu')
+    if 'model_state_dict' not in save_dict:
+        raise KeyError("Checkpoint missing 'model_state_dict': {}".format(weights_path))
     model.load_state_dict(save_dict['model_state_dict'])
     model.eval()
+    print(f"Loaded checkpoint: {weights_path}")
     return model
 
 
