@@ -66,6 +66,48 @@ If there is an issue with the GolfDB submodule not being found, you may need to 
 ln -s ../../submodule/GolfDB GolfDB
 ```
 
+## Local Pose Detection Test (iOS-consistent)
+To test pose detection locally using the same Apple Vision method as the iOS app (same joints + confidence threshold), run:
+
+```bash
+swift Scripts/test_pose_detection.swift --video /path/to/swing.mp4
+```
+
+You can also test event-frame indices directly (Address..Finish order):
+
+```bash
+swift Scripts/test_pose_detection.swift --video /path/to/swing.mp4 --event-frames 12,33,50,60,72,80,95,120
+```
+
+Or test one image:
+
+```bash
+swift Scripts/test_pose_detection.swift --image /path/to/frame.jpg
+```
+
+Output JSON is written to `Scripts/output/local_pose_test.json` by default.
+
+## Local PyTorch Event + Pose API (temporary iOS backend)
+To run event detection and pose extraction from Python (instead of on-device CoreML/Vision), start the local API:
+
+```bash
+.venv/bin/python Scripts/event_detection_api.py --host 127.0.0.1 --port 8000
+```
+
+Health check:
+
+```bash
+curl http://127.0.0.1:8000/health
+```
+
+The iOS app is configured to call `http://127.0.0.1:8000/detect-events` first:
+- If successful, it uses remote event frames and remote pose landmarks.
+- If unavailable, it falls back to on-device CoreML event detection (and local Vision pose detection).
+
+Notes:
+- iOS Simulator: `127.0.0.1` works for a server running on your Mac.
+- Physical iPhone: set the endpoint host in `GolfSwingAnalyzeriOS/GolfSwingAnalyzeriOS/Services/EventDetectionService.swift` to your Mac's LAN IP.
+
 ## TODO
 <ul>
   <li>Resize input videos to a standard size, thus when comparing the pro landmarks and input landmarks, the ratio, distances, and angles should be more accurate</li>
